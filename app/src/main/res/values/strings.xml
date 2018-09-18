@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TestConnect</string>
+    <string name="message_enter_url">Enter a URL to test connection.</string>
 </resources>

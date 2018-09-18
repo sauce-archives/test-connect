@@ -3,10 +3,14 @@ package com.saucelabs.testconnect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,6 +33,27 @@ public class MainActivity extends AppCompatActivity {
         final EditText urlField = findViewById(R.id.urlField);
         textView = findViewById(R.id.textView);
 
+        urlField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+
+                if (keyEvent != null && actionId == KeyEvent.KEYCODE_ENTER
+                        || actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+
+                    if (urlField.getText().toString().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.message_enter_url), Toast.LENGTH_SHORT).show();
+                    } else {
+                        urlString = urlField.getText().toString();
+                        new EstablishConnectionTask().execute(urlString);
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,14 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
     private class EstablishConnectionTask extends AsyncTask<String, Void, Boolean> {
 
-        Exception exception;
+        private Exception exception;
 
         @Override
         protected Boolean doInBackground(String... urls) {
 
             boolean success;
 
-            URL url = null;
+            URL url;
             try {
                 url = new URL(urls[0]);
                 URLConnection urlConnection = url.openConnection();
